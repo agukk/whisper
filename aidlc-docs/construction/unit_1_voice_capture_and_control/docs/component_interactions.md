@@ -13,7 +13,7 @@ flowchart TD
     AL[ApplicationLifecycle] --> VCS[VoiceCaptureSession]
     SC[ShortcutConfiguration] --> VCS
     AL -- "メニューバーアイコン押し続け" --> VCS
-    SC -- "ショートカットキー押し続け" --> VCS
+    SC -- "fn（Globe）キー押し続け" --> VCS
     VCS -- "録音状態の変化" --> AL
 ```
 
@@ -38,8 +38,8 @@ flowchart TD
 
 | 相互作用 | 説明 |
 |---|---|
-| ショートカットキーからの音声キャプチャ開始 | 設定されたファンクションキーの長押しにより VoiceCaptureSession.startCapture() を呼び出す |
-| ショートカットキーからの音声キャプチャ停止 | 設定されたファンクションキーの解放により VoiceCaptureSession.stopCapture() を呼び出す |
+| ショートカットキーからの音声キャプチャ開始 | fn（Globe）キーの長押しにより VoiceCaptureSession.startCapture() を呼び出す |
+| ショートカットキーからの音声キャプチャ停止 | fn（Globe）キーの解放により VoiceCaptureSession.stopCapture() を呼び出す |
 
 ---
 
