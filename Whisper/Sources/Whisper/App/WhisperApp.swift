@@ -10,6 +10,7 @@ struct WhisperApp: App {
     @StateObject private var captureSession = VoiceCaptureSession()
     @StateObject private var shortcutConfig = ShortcutConfiguration()
     @StateObject private var appLifecycle = ApplicationLifecycle()
+    @StateObject private var languageConfig = LanguageConfiguration()
 
     // MARK: - サービス
 
@@ -31,7 +32,10 @@ struct WhisperApp: App {
         }
 
         Settings {
-            SettingsView(shortcutConfig: shortcutConfig)
+            SettingsView(
+                shortcutConfig: shortcutConfig,
+                languageConfig: languageConfig
+            )
         }
     }
 
@@ -42,7 +46,7 @@ struct WhisperApp: App {
     }
 }
 
-// MARK: - AppDelegate（サービス接続用）
+// MARK: - AppCoordinator（サービス接続用）
 
 /// アプリケーション起動時にサービスを初期化しドメインモデルと接続する
 @MainActor
@@ -51,22 +55,27 @@ final class AppCoordinator: ObservableObject {
     let captureSession: VoiceCaptureSession
     let shortcutConfig: ShortcutConfiguration
     let appLifecycle: ApplicationLifecycle
+    let languageConfig: LanguageConfiguration
     let audioCaptureService: AudioCaptureService
     let hotkeyService: GlobalHotkeyService
+    let speechRecognitionService: SpeechRecognitionService
     private var cancellables = Set<AnyCancellable>()
 
     init(
         captureSession: VoiceCaptureSession,
         shortcutConfig: ShortcutConfiguration,
         appLifecycle: ApplicationLifecycle,
+        languageConfig: LanguageConfiguration,
         audioCaptureService: AudioCaptureService,
         hotkeyService: GlobalHotkeyService
     ) {
         self.captureSession = captureSession
         self.shortcutConfig = shortcutConfig
         self.appLifecycle = appLifecycle
+        self.languageConfig = languageConfig
         self.audioCaptureService = audioCaptureService
         self.hotkeyService = hotkeyService
+        self.speechRecognitionService = SpeechRecognitionService(languageConfiguration: languageConfig)
 
         setupBindings()
     }
@@ -82,6 +91,21 @@ final class AppCoordinator: ObservableObject {
             self.captureSession.stopCapture()
         }
 
+        // AudioCaptureService の出力先を SpeechRecognitionService に接続
+        audioCaptureService.streamOutput = speechRecognitionService
+
+        // SpeechRecognitionService のコールバック設定
+        speechRecognitionService.onRecognitionCompleted = { [weak self] result in
+            guard let self else { return }
+            print("[AppCoordinator] Recognition completed: \(result.getFullText())")
+            self.captureSession.complete()
+        }
+        speechRecognitionService.onRecognitionFailed = { [weak self] error in
+            guard let self else { return }
+            print("[AppCoordinator] Recognition failed: \(error.localizedDescription)")
+            self.captureSession.complete()
+        }
+
         // VoiceCaptureSession のイベント → サービス連携
         captureSession.eventPublisher
             .sink { [weak self] event in
@@ -93,8 +117,7 @@ final class AppCoordinator: ObservableObject {
                 case .captureStopped:
                     self.audioCaptureService.stopCapture()
                     self.appLifecycle.updateIconState(captureStatus: .processing)
-                    // スタブ: 即座に完了
-                    self.captureSession.complete()
+                    // Unit 2 の認識完了コールバックで complete() が呼ばれる
                 case .captureCompleted:
                     self.appLifecycle.updateIconState(captureStatus: .idle)
                 }
