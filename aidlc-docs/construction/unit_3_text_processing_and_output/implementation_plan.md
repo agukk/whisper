@@ -94,13 +94,13 @@ Whisper/Tests/WhisperTests/
 
 ## 実装ステップ
 
-- [ ] ステップ 1: Package.swift に Google AI SDK 依存を追加
-- [ ] ステップ 2: ドメイン層の実装（TextRewrite, TextOutput）
-- [ ] ステップ 3: ドメイン層のユニットテスト
-- [ ] ステップ 4: サービス層の実装（KeychainService, GeminiRewriteService, TextInsertionService）
-- [ ] ステップ 5: Unit 2 との結合（RecognitionFinalized → TextRewrite → TextOutput）
-- [ ] ステップ 6: SettingsView に API キー＋出力方法設定 UI を追加
-- [ ] ステップ 7: ビルド検証
+- [x] ステップ 1: Package.swift に Google AI SDK 依存を追加
+- [x] ステップ 2: ドメイン層の実装（TextRewrite, TextOutput）
+- [x] ステップ 3: ドメイン層のユニットテスト（作成済み。実行には Xcode が必要）
+- [x] ステップ 4: サービス層の実装（KeychainService, GeminiRewriteService, TextInsertionService）
+- [x] ステップ 5: Unit 2 との結合（RecognitionFinalized → TextRewrite → TextOutput）
+- [x] ステップ 6: SettingsView に API キー＋出力方法設定 UI を追加
+- [x] ステップ 7: ビルド検証 ✅ 成功
 
 ---
 

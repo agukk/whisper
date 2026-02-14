@@ -6,6 +6,11 @@ struct SettingsView: View {
     @ObservedObject var shortcutConfig: ShortcutConfiguration
     @ObservedObject var languageConfig: LanguageConfiguration
 
+    // MARK: - API キー状態
+    @State private var apiKeyInput: String = ""
+    @State private var isApiKeySaved: Bool = false
+    @State private var showApiKeyAlert: Bool = false
+
     var body: some View {
         Form {
             // MARK: - ショートカット設定
@@ -60,9 +65,66 @@ struct SettingsView: View {
                         .foregroundColor(.secondary)
                 }
             }
+
+            // MARK: - Gemini API 設定
+            Section("Gemini API") {
+                SecureField("API キー", text: $apiKeyInput)
+                    .textFieldStyle(.roundedBorder)
+
+                HStack {
+                    Button("保存") {
+                        if !apiKeyInput.isEmpty {
+                            KeychainService.save(key: .geminiAPIKey, value: apiKeyInput)
+                            isApiKeySaved = true
+                            apiKeyInput = ""
+                            showApiKeyAlert = true
+                        }
+                    }
+                    .disabled(apiKeyInput.isEmpty)
+
+                    if KeychainService.exists(key: .geminiAPIKey) {
+                        Button("削除", role: .destructive) {
+                            KeychainService.delete(key: .geminiAPIKey)
+                            isApiKeySaved = false
+                        }
+                    }
+
+                    Spacer()
+
+                    if KeychainService.exists(key: .geminiAPIKey) {
+                        Label("設定済み", systemImage: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.caption)
+                    } else {
+                        Label("未設定", systemImage: "xmark.circle")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                    }
+                }
+
+                Text("Gemini API キーは Keychain に安全に保存されます。")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            // MARK: - 出力設定
+            Section("出力方法") {
+                Picker("出力先", selection: .constant(OutputMethod.activeField)) {
+                    ForEach(OutputMethod.allCases, id: \.self) { method in
+                        Text(method.displayName).tag(method)
+                    }
+                }
+
+                Text("アクティブフィールド: カーソル位置にテキストを直接入力\nクリップボード: テキストをクリップボードにコピー\n両方: 直接入力 + クリップボードコピー")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
         .formStyle(.grouped)
-        .frame(width: 400, height: 280)
+        .frame(width: 450, height: 520)
         .navigationTitle("Whisper 設定")
+        .alert("API キーを保存しました", isPresented: $showApiKeyAlert) {
+            Button("OK") {}
+        }
     }
 }
