@@ -151,9 +151,9 @@ swift build # ビルド成功の確認
 
 ## 実装ステップ
 
-- [ ] ステップ 1: プロジェクト作成（Package.swift, Info.plist, ディレクトリ構成）
-- [ ] ステップ 2: ドメイン層の実装（VoiceCaptureSession, ShortcutConfiguration, ApplicationLifecycle）
-- [ ] ステップ 3: ドメイン層のユニットテスト
-- [ ] ステップ 4: サービス層の実装（AudioCaptureService, GlobalHotkeyService, ActiveWindowService）
-- [ ] ステップ 5: UI 層の実装（WhisperApp, MenuBarView, SettingsView）
-- [ ] ステップ 6: 結合・手動検証
+- [x] ステップ 1: プロジェクト作成（Package.swift, ディレクトリ構成）
+- [x] ステップ 2: ドメイン層の実装（VoiceCaptureSession, ShortcutConfiguration, ApplicationLifecycle）
+- [x] ステップ 3: ドメイン層のユニットテスト（作成済み。実行には Xcode が必要）
+- [x] ステップ 4: サービス層の実装（AudioCaptureService, GlobalHotkeyService, ActiveWindowService）
+- [x] ステップ 5: UI 層の実装（WhisperApp, MenuBarView, SettingsView）
+- [ ] ステップ 6: 結合・手動検証（Xcode インストール後に実施）
